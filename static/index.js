@@ -11,7 +11,7 @@ var surveyJSON = {
           "type": "radiogroup",
           "name": "consortium",
           "title": "Consortium",
-          "isRequired": true,
+          "isRequired": false,
           "choices": [
             "AMP-AD",
             "M2OVE-AD",
@@ -72,40 +72,40 @@ var surveyJSON = {
           "type": "text",
           "name": "funding_date",
           "title": "Funding date",
-          "isRequired": true,
+          "isRequired": false,
           "inputType": "date"
         },
         {
           "type": "text",
           "name": "synapse_liaison_name",
           "title": "Synapse liaison name",
-          "isRequired": true
+          "isRequired": false
         },
         {
           "type": "text",
           "name": "synapse_liaison_email",
           "title": "Synapse liaison email address",
-          "isRequired": true,
+          "isRequired": false,
           "inputType": "email"
         },
         {
           "type": "text",
           "name": "synapse_liaison_username",
           "title": "Synapse liaison username",
-          "isRequired": true
+          "isRequired": false
         },
         {
           "type": "comment",
           "name": "study_summary",
           "title": "Study summary",
           "description": "Please describe the planned study(s) in as much detail as possible, including a summary of experimental design(s), human data or model systems, assays that will be used, and estimated total number of samples or measures from which data will be generated for each assay over the lifespan of the grant.",
-          "isRequired": true
+          "isRequired": false
         },
         {
           "type": "radiogroup",
           "name": "includes_human_data",
           "title": "Includes human data?",
-          "isRequired": true,
+          "isRequired": false,
           "choices": [
             "True",
             "False"
@@ -115,7 +115,7 @@ var surveyJSON = {
           "type": "paneldynamic",
           "name": "timeline",
           "title": "Timeline",
-          "isRequired": true,
+          "isRequired": false,
           "templateElements": [
             {
               "type": "text",
