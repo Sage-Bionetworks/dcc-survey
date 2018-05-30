@@ -77,22 +77,22 @@ var surveyJSON = {
         },
         {
           "type": "text",
-          "name": "synapse_liaison_name",
-          "title": "Synapse liaison name",
+          "name": "pi_firstname",
+          "title": "PI first name",
           "isRequired": false
         },
         {
           "type": "text",
-          "name": "synapse_liaison_email",
-          "title": "Synapse liaison email address",
+          "name": "pi_lastname",
+          "title": "PI last name",
+          "isRequired": false
+        },
+        {
+          "type": "text",
+          "name": "pi_email",
+          "title": "PI email address",
           "isRequired": false,
           "inputType": "email"
-        },
-        {
-          "type": "text",
-          "name": "synapse_liaison_username",
-          "title": "Synapse liaison username",
-          "isRequired": false
         },
         {
           "type": "comment",
