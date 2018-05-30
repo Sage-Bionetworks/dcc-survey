@@ -72,7 +72,8 @@ survey.render("survey");
 survey.focusFirstQuestion();
 
 function sendDataToServer(survey) {
-  survey.sendResult('53a2fdee-6813-4b78-8f3f-1d26eaa4b2aa');
+  // survey.sendResult('53a2fdee-6813-4b78-8f3f-1d26eaa4b2aa');
+  console.log(survey.data);
 }
 
 $("#surveyContainer").Survey({
