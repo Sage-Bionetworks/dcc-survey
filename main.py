@@ -19,7 +19,7 @@ def submit():
 
   path = os.path.join(directory, filename + filename_suffix)
 
-  with open(path, 'w') as outfile:
+  with open(path, 'a') as outfile:
     json.dump(request.form, outfile)
 
   return('hello')
