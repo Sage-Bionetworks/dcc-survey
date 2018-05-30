@@ -79,13 +79,13 @@ var surveyJSON = {
           "type": "text",
           "name": "pi_firstname",
           "title": "PI first name",
-          "isRequired": false
+          "isRequired": true
         },
         {
           "type": "text",
           "name": "pi_lastname",
           "title": "PI last name",
-          "isRequired": false
+          "isRequired": true
         },
         {
           "type": "text",

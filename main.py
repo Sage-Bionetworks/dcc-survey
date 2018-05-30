@@ -10,14 +10,22 @@ def show_survey():
 
 @app.route('/submit', methods=['POST'])
 def submit():
-  directory = 'data'
-  if not os.path.exists(directory):
-    os.makedirs(directory)
+  datadir = 'data'
+  if not os.path.exists(datadir):
+    os.makedirs(datadir)
+
+  lastname = request.form.get('pi_lastname')
+  firstname = request.form.get('pi_firstname')
+
+  pi_path = os.path.join(datadir, lastname + '_' + firstname)
+
+  if not os.path.exists(pi_path):
+    os.makedirs(pi_path)
 
   filename = datetime.datetime.now().isoformat()
   filename_suffix = '.json'
 
-  path = os.path.join(directory, filename + filename_suffix)
+  path = os.path.join(pi_path, filename + filename_suffix)
 
   with open(path, 'a') as outfile:
     json.dump(request.form, outfile)
