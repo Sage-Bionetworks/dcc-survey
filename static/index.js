@@ -162,7 +162,7 @@ var surveyJSON = {
       "title": "Study Survey"
     }
   ]
-}
+};
 
 var survey = new Survey.Model(surveyJSON);
 survey.css = css;
