@@ -5,5 +5,6 @@ A survey using [survey.js](https://surveyjs.io/). Does this make sense? We'll fi
 To run locally:
 
 ```python
+pip install -r requirements.txt
 python3 main.py
 ```
