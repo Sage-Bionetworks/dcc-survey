@@ -3,165 +3,153 @@ var css = {
 };
 
 var surveyJSON = {
-  "pages": [
+ "title": "Pre-award survey",
+ "pages": [
+  {
+   "name": "study",
+   "elements": [
     {
-      "name": "study",
-      "elements": [
+     "type": "html",
+     "name": "explanation",
+     "html": "<h4>Background</h4>\n\n<style>\np    {font-size: 14px;}\nli    {font-size: 14px;}\n</style>\n\n<p>\n  Funding for this grant is provided with the expectation that awardees engage in broad sharing of data, analytical methodology, and other resources in compliance with these data sharing terms, and in accordance with general NIH data sharing policies (NOT-OD-14-124: <a href=\"https://grants.nih.gov/grants/guide/notice-files/NOT-OD-14-124.html\">https://grants.nih.gov/grants/guide/notice-files/NOT-OD-14-124.html</a>)\n</p>\n\n<p>\n  To this end:\n</p>\n\n<ul>\n<li>all datasets used in support of and generated through this project will be made accessible and reusable by qualified individuals other than the original data generators.\n<li>all analytical methodologies will be made fully reproducible and transparent  so that results can be vetted and existing analysis techniques quickly applied to new application areas\n<li>all models of biological systems and networks will be made open to users such that  theoretical predictions can be rapidly validated experimentally.\n<li>all disease models generated in the course of the project will be made freely available to qualified investigators to accelerate their characterization and validation and their translational utility.\n</ul>\n\n<p>\nThe sharing of all content and data integration activities are provided by Sage Bionetworks through the AMP-AD Knowledge Portal (ampadportal.org), a collaborative data platform which serves as an IRB approved environment where data can be stored/accessed and collaboratively analyzed. Data will be made available broadly to all qualified users twice a year. There will be no publication embargo imposed on the use of data after they have been made available through the public portal.\n</p>"
+    },
+    {
+     "type": "text",
+     "name": "foa_number",
+     "title": "FOA number",
+     "isRequired": true
+    },
+    {
+     "type": "text",
+     "name": "pi_name",
+     "title": "Contact PI name",
+     "isRequired": true
+    },
+    {
+     "type": "text",
+     "name": "pi_email",
+     "title": "Contact PI email address",
+     "isRequired": true,
+     "inputType": "email"
+    },
+    {
+     "type": "text",
+     "name": "pi_organization",
+     "title": "Contact PI organization\n",
+     "isRequired": true
+    },
+    {
+     "type": "radiogroup",
+     "name": "new_data",
+     "title": "Will project generate new data?",
+     "isRequired": true,
+     "choices": [
+      "yes",
+      "no"
+     ]
+    },
+    {
+     "type": "comment",
+     "name": "data_source",
+     "visibleIf": "{new_data} = \"no\"",
+     "title": "Describe existing data source. If data is publicly available, please provide a link."
+    },
+    {
+     "type": "radiogroup",
+     "name": "preliminary_data",
+     "title": "Has preliminary data been generated in support of the study?",
+     "isRequired": true,
+     "choices": [
+      "yes",
+      "no"
+     ]
+    },
+    {
+     "type": "comment",
+     "name": "preliminary_data_desc",
+     "visibleIf": "{preliminary_data} = \"yes\"",
+     "title": "Describe the preliminary data"
+    },
+    {
+     "type": "comment",
+     "name": "study_summary",
+     "title": "Study summary",
+     "description": "Please describe the planned study(s) in as much detail as possible, including a summary of experimental design(s), human data or model systems, assays that will be used, and estimated total number of samples or measures from which data will be generated for each assay over the lifespan of the grant.",
+     "isRequired": true
+    },
+    {
+     "type": "paneldynamic",
+     "name": "timeline",
+     "title": "Timeline",
+     "isRequired": true,
+     "templateElements": [
+      {
+       "type": "text",
+       "name": "grant_year",
+       "title": "Grant year",
+       "description": " (e.g. 1, 2, 3; not the calendar year)",
+       "inputType": "number"
+      },
+      {
+       "type": "checkbox",
+       "name": "expected_contribs",
+       "title": "Expected contributions",
+       "choices": [
         {
-          "type": "radiogroup",
-          "name": "consortium",
-          "title": "Consortium",
-          "isRequired": false,
-          "choices": [
-            "AMP-AD",
-            "M2OVE-AD",
-            "MODEL-AD",
-            "Resilience-AD"
-          ]
+         "value": "experimentalData",
+         "text": " Experimental data"
         },
         {
-          "type": "dropdown",
-          "name": "ampad_grant",
-          "visibleIf": "{consortium} = \"AMP-AD\"",
-          "title": "Grant",
-          "choices": [
-            "U01AG046152",
-            "U01AG046170",
-            "U01AG046139",
-            "U01AG046161",
-            "5R01AG046174",
-            "R01AG046171"
-          ]
+         "value": "analysis",
+         "text": " Analysis"
         },
         {
-          "type": "dropdown",
-          "name": "m2ovead_grant",
-          "visibleIf": "{consortium} = \"M2OVE-AD\"",
-          "title": "Grant",
-          "choices": [
-            "R01AG051556",
-            "R01AG051504",
-            "R01AG051633",
-            "R01AG051550",
-            "R01AG051554"
-          ]
+         "value": "tool",
+         "text": " Tool"
         },
         {
-          "type": "dropdown",
-          "name": "modelad_grant",
-          "visibleIf": "{consortium} = \"MODEL-AD\"",
-          "title": "Grant",
-          "choices": [
-            "1U54AG054345"
-          ]
-        },
-        {
-          "type": "dropdown",
-          "name": "resilience_grant",
-          "visibleIf": "{consortium} = \"Resilience-AD\"",
-          "title": "Grant",
-          "choices": [
-            "R01AG057907",
-            "R01AG057909",
-            "R01AG057911",
-            "R01AG057912",
-            "R01AG057914"
-          ]
-        },
-        {
-          "type": "text",
-          "name": "funding_date",
-          "title": "Funding date",
-          "isRequired": false,
-          "inputType": "date"
-        },
-        {
-          "type": "text",
-          "name": "pi_firstname",
-          "title": "PI first name",
-          "isRequired": true
-        },
-        {
-          "type": "text",
-          "name": "pi_lastname",
-          "title": "PI last name",
-          "isRequired": true
-        },
-        {
-          "type": "text",
-          "name": "pi_email",
-          "title": "PI email address",
-          "isRequired": false,
-          "inputType": "email"
-        },
-        {
-          "type": "comment",
-          "name": "study_summary",
-          "title": "Study summary",
-          "description": "Please describe the planned study(s) in as much detail as possible, including a summary of experimental design(s), human data or model systems, assays that will be used, and estimated total number of samples or measures from which data will be generated for each assay over the lifespan of the grant.",
-          "isRequired": false
-        },
-        {
-          "type": "radiogroup",
-          "name": "includes_human_data",
-          "title": "Includes human data?",
-          "isRequired": false,
-          "choices": [
-            "True",
-            "False"
-          ]
-        },
-        {
-          "type": "paneldynamic",
-          "name": "timeline",
-          "title": "Timeline",
-          "isRequired": false,
-          "templateElements": [
-            {
-              "type": "text",
-              "name": "grant_year",
-              "title": "Grant year",
-              "description": " (e.g. 1, 2, 3; not the calendar year)",
-              "inputType": "number",
-              "placeHolder": "1"
-            },
-            {
-              "type": "checkbox",
-              "name": "question1",
-              "title": "Expected contributions",
-              "hasOther": true,
-              "choices": [
-                {
-                  "value": "experimentalData ",
-                  "text": " Experimental data"
-                },
-                {
-                  "value": "analysis ",
-                  "text": " Analysis"
-                },
-                {
-                  "value": "tool ",
-                  "text": " Tool"
-                }
-              ]
-            },
-            {
-              "type": "comment",
-              "name": "contribution_description",
-              "title": "Contribution description",
-              "description": "Please describe in as much detail as possible, the anticipated data, analyses, and/or tools that will be contributed in this funding year. Leave empty if no contribution is anticipated."
-            }
-          ],
-          "templateTitle": "Anticipated contributions",
-          "panelCount": 1,
-          "minPanelCount": 1,
-          "panelAddText": "Add grant year",
-          "panelRemoveText": "Remove grant year"
+         "value": "other",
+         "text": "Other"
         }
-      ],
-      "title": "Study Survey"
+       ]
+      },
+      {
+       "type": "comment",
+       "name": "experimental_data_desc",
+       "visibleIf": "{panel.expected_contribs} contains \"experimentalData\"",
+       "title": "Experimental data",
+       "description": "Describe what type of data will be contributed. Include source of biosamples (brain region, cell types etc) and what assays will be generated from them, or tests or assessments of living individuals (such as cognitive tests, behavioral analysis or imaging). Include the number of individuals, animals, or batches of cultured cells data will be contributed from."
+      },
+      {
+       "type": "comment",
+       "name": "analysis_desc",
+       "visibleIf": "{panel.expected_contribs} contains \"analysis\"",
+       "title": "Analysis",
+       "description": "Describe the type of analysis that will be contributed and the source of the data that was analyzed."
+      },
+      {
+       "type": "comment",
+       "name": "tool_desc",
+       "visibleIf": "{panel.expected_contribs} contains \"tool\"\n",
+       "title": "Tool",
+       "description": "Describe tools that will be made available, such as vectors and animal models."
+      },
+      {
+       "type": "comment",
+       "name": "other_desc",
+       "visibleIf": "{panel.expected_contribs} contains \"other\"",
+       "title": "Other"
+      }
+     ],
+     "templateTitle": "Anticipated contributions",
+     "panelCount": 1,
+     "minPanelCount": 1,
+     "panelAddText": "Add grant year",
+     "panelRemoveText": "Remove grant year"
     }
-  ]
+   ]
+  }
+ ]
 };
 
 var survey = new Survey.Model(surveyJSON);
