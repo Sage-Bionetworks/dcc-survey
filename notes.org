@@ -1,0 +1,257 @@
+* SSH instructions
+
+** Sage AWS
+
+*** Connect to VPN
+
+Using Tunnelblick and JumpCloud credentials.
+
+*** SSH in
+
+#+BEGIN_SRC shell
+ssh kwoo@instance.ip.here
+#+END_SRC
+
+** Personal AWS account
+
+#+BEGIN_SRC shell
+ssh -i /path/to/credentials.pem ec2-user@ec2-public-dns-here
+#+END_SRC
+
+* EC2 Instance setup
+
+Update libraries
+
+#+BEGIN_SRC shell
+sudo yum update
+#+END_SRC
+
+** Install git
+
+#+BEGIN_SRC shell
+sudo yum install git
+#+END_SRC
+
+Configure user name, email, etc. if desired
+
+** Install Python stuff
+
+#+BEGIN_SRC shell
+sudo yum install python36 python-pip python-dev
+#+END_SRC
+
+** Set up ssh keys
+
+Optional, but needed if we want to push/pull via SSH to GitHub
+
+#+BEGIN_SRC shell
+ssh-keygen -t rsa -b 4096 -C "email@example.com"
+eval "$(ssh-agent -s)"
+ssh-add ~/.ssh/id_rsa
+cat ~/.ssh/id_rsa.pub # copy to clipboard and add to github
+#+END_SRC
+
+** Clone repo
+
+#+BEGIN_SRC shell
+git clone git@github.com:Sage-Bionetworks/dcc-survey.git
+#+END_SRC
+
+If you skipped the above then clone via HTTPS instead of via SSH
+
+#+BEGIN_SRC shell
+git clone https://github.com/Sage-Bionetworks/dcc-survey.git
+#+END_SRC
+
+** Set up virtualenv
+
+#+BEGIN_SRC shell
+python3 -m venv ~/envs/flask
+source ~/envs/flask/bin/activate
+cd ~/dcc-survey
+pip install -r requirements.txt
+#+END_SRC
+
+* Server setup
+
+** Install and configure nginx
+
+Install nginx, and create a configuration file for our app
+#+BEGIN_SRC shell
+sudo yum install nginx
+sudo nano /etc/nginx/conf.d/myapp.conf # this can be called anything ending in .conf
+#+END_SRC
+
+Paste in the following:
+
+#+BEGIN_SRC
+server {
+      listen 80;
+      server_name ec2-54-201-174-120.us-west-2.compute.amazonaws.com; # your public DNS here
+
+      location / {
+            proxy_pass http://127.0.0.1:8000/;
+      }
+}
+#+END_SRC
+
+Then edit the main nginx.conf file
+
+#+BEGIN_SRC shell
+sudo nano /etc/nginx/nginx.conf
+#+END_SRC
+
+Add the following within the ~http~ block:
+
+#+BEGIN_SRC
+server_names_hash_bucket_size 128;
+#+END_SRC
+
+(Re)start nginx running:
+
+#+BEGIN_SRC shell
+sudo service nginx restart
+#+END_SRC
+
+** gunicorn
+
+Run gunicorn, bind to port 8000. The & at the end runs the process in the background.
+
+#+BEGIN_SRC shell
+gunicorn main:app -b localhost:8000 &
+#+END_SRC
+
+To cancel process:
+
+#+BEGIN_SRC shell
+pkill gunicorn
+#+END_SRC
+
+The above is sufficient to get things running. However we can also write an upstart script that will ensure the machine will automatically start the server when booted up. I believe, however, that this will require a persistent public DNS (since the public DNS is hardcoded in the nginx configuration we did), so what follows will likely not make a difference for typical EC2 instances if you want to start and stop them, because their public DNS changes each time.
+
+*** Upstart script
+
+[[https://pyliaorachel.github.io/blog/tech/system/2017/07/07/flask-app-with-gunicorn-on-nginx-server-upon-aws-ec2-linux.html][Source]]
+
+Create a file in /etc/init:
+
+#+BEGIN_SRC shell
+sudo nano /etc/init/dcc-survey.conf
+#+END_SRC
+
+Paste in the following. Things to note:
+- PATH: give the path to your virtualenv (need to make sure that the correct python version and dependencies are available)
+- ~exec gunicorn --workers 3 --bind unix:dcc-survey.sock -m 000 main:app >> /var/log/$PROGRAM_NAME.sys.log 2>&1~ is the most important bit -- this handles running the app through gunicorn.
+- This script does some helpful logging, but you could ditch the pre-start script, pre-stop script, and other logging bits in the main script if desired.
+- Make sure paths, username, etc. are correct for your system.
+
+#+BEGIN_EXAMPLE
+description "Gunicorn application server running dcc-survey"
+
+start on runlevel [2345]
+stop on runlevel [!2345]
+
+respawn
+
+env PATH=/home/kwoo/envs/flask/bin
+env PROGRAM_NAME="dcc-survey"
+env USERNAME="kwoo"
+
+script
+    echo "[`date -u +%Y-%m-%dT%T.%3NZ`] (sys) Ready to run..." >> /var/log/$PROGRAM_NAME.sys.log
+
+    export HOME="/home/kwoo"
+    echo $$ > /var/run/$PROGRAM_NAME.pid
+
+    cd /home/kwoo/dcc-survey
+    exec gunicorn --workers 3 --bind unix:dcc-survey.sock -m 000 main:app >> /var/log/$PROGRAM_NAME.sys.log 2>&1
+end script
+
+# Script for debug purpose, run before starting
+pre-start script
+    echo "[`date -u +%Y-%m-%dT%T.%3NZ`] (sys) Starting" >> /var/log/$PROGRAM_NAME.sys.log
+end script
+
+# Script for debug purpose, run before stopping
+pre-stop script
+    rm /var/run/$PROGRAM_NAME.pid/
+    echo "[`date -u +%Y-%m-%dT%T.%3NZ`] (sys) Stopping" >> /var/log/$PROGRAM_NAME.sys.log
+end script
+#+END_EXAMPLE
+
+Reload configurations, check that our newly created dcc-survey program is listed, and if so start it.
+
+#+BEGIN_SRC shell
+sudo initctl reload-configuration
+sudo initctl list # see if dcc-survey is there, if not there is probably some error in the config file
+sudo initctl start dcc-survey
+#+END_SRC
+
+* Other setup
+
+** Install R
+
+Not sure if I need this for sure but let's set it up.
+
+#+BEGIN_SRC shell
+sudo yum install -y R
+#+END_SRC
+
+* Troubleshooting
+
+** Making the site accessible to external traffic, not just local
+
+- Make sure that the security group allows incoming HTTP/HTTPS traffic (ports 80 and 443). You will feel very silly if you spend a lot of time configuring everything and nothing seems to work because your instance doesn't allow HTTP traffic. Ask me how I know.
+- Need to make sure host is "0.0.0.0" in ~app.run()~:
+
+#+BEGIN_SRC python
+if __name__ == '__main__':
+  app.run(host = "0.0.0.0")
+#+END_SRC
+
+* Things that did NOT work
+
+** nginx config
+
+A lot of sites say to do something like the following to set up your nginx config:
+
+#+BEGIN_SRC shell
+sudo yum install nginx
+sudo mkdir /etc/nginx/sites-available
+sudo mkdir /etc/nginx/sites-enabled
+sudo nano /etc/nginx/sites-available/dcc-survey.conf
+#+END_SRC
+
+Paste:
+
+#+BEGIN_SRC
+server {
+	listen 80;
+
+	location / {
+		proxy_pass http://127.0.0.1:8000/;
+	}
+}
+#+END_SRC
+
+#+BEGIN_SRC shell
+sudo ln -s /etc/nginx/sites-available/dcc-survey.conf /etc/nginx/sites-enabled/dcc-survey.conf
+sudo service nginx restart
+#+END_SRC
+
+This did NOT work for me, and some evidence suggests that this is for Debian/Ubuntu systems only. Since I was testing on an Amazon Linux machine, maybe that's why it didn't work? I have read mixed reports about whether this is even a good idea (e.g. [[https://apassionatechie.wordpress.com/2017/12/18/what-is-the-different-usages-for-sites-available-vs-the-conf-d-directory-for-nginx/][here]]), but lots of tutorials suggested this approach so ¯\_(ツ)_/¯
+
+* Resources
+
+- https://www.datasciencebytes.com/bytes/2015/02/24/running-a-flask-app-on-aws-ec2/
+- http://zabana.me/notes/upload-files-amazon-s3-flask.html
+- https://www.digitalocean.com/community/tutorials/how-to-serve-flask-applications-with-uwsgi-and-nginx-on-ubuntu-14-04
+- https://pyliaorachel.github.io/blog/tech/system/2017/07/07/flask-app-with-gunicorn-on-nginx-server-upon-aws-ec2-linux.html
+- https://www.matthealy.com.au/blog/post/deploying-flask-to-amazon-web-services-ec2/
+- https://stackoverflow.com/questions/31904761/what-does-app-runhost-0-0-0-0-mean-in-flask
+- https://chrisdtran.com/2017/deploy-flask-on-ec2/
+- https://www.digitalocean.com/community/tutorials/how-to-install-and-configure-django-with-postgres-nginx-and-gunicorn#step-nine-configure-gunicorn
+- http://bathompso.com/blog/Flask-AWS-Setup/
+- https://www.digitalocean.com/community/tutorials/how-to-install-and-configure-django-with-postgres-nginx-and-gunicorn#step-nine-configure-gunicorn
+- https://serverfault.com/questions/527630/what-is-the-different-usages-for-sites-available-vs-the-conf-d-directory-for-ngi
+- https://apassionatechie.wordpress.com/2017/12/18/what-is-the-different-usages-for-sites-available-vs-the-conf-d-directory-for-nginx/
